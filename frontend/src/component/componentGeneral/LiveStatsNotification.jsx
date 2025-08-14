@@ -5,11 +5,11 @@ const getRandomNumber = (min, max) =>
   Math.floor(Math.random() * (max - min + 1) + min);
 
 const LiveStatsNotification = () => {
-  const [viewers, setViewers] = useState(getRandomNumber(50, 250));
+  const [viewers, setViewers] = useState(getRandomNumber(20, 50));
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setViewers(getRandomNumber(59, 250));
+      setViewers(getRandomNumber(20, 50));
     }, 15000);
 
     return () => clearInterval(interval);

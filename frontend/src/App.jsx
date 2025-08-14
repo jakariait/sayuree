@@ -19,8 +19,6 @@ import useFlagStore from "./store/useFlagStore.js";
 import useChildCategoryStore from "./store/useChildCategoryStore.js";
 import useProductStore from "./store/useProductStore.js";
 import useAuthUserStore from "./store/AuthUserStore.js";
-import useOrderStore from "./store/useOrderStore.js";
-
 import ContactRequestPage from "./pagesAdmin/ContactRequestPage.jsx";
 import AdminLogin from "./component/componentAdmin/AdminLogin.jsx";
 import ProtectedRoute from "./component/componentAdmin/ProtectedRoute.jsx";
@@ -91,6 +89,11 @@ import EditAdminPage from "./pagesAdmin/EditAdminPage.jsx";
 import { setFaviconFromApi } from "./utils/setFavicon.js";
 import CreateBlogPage from "./pagesAdmin/CreateBlogPage.jsx";
 import BlogsListPage from "./pagesAdmin/BlogsListPage.jsx";
+import EditBlogPage from "./pagesAdmin/EditBlogPage.jsx";
+import BlogsPage from "./pagesUser/BlogsPage.jsx";
+import BlogDetailsPage from "./pagesUser/BlogDetailsPage.jsx";
+import ForgetPasswordPage from "./pagesUser/ForgetPasswordPage.jsx";
+import ResetPasswordPage from "./pagesUser/ResetPasswordPage.jsx";
 
 function App() {
   const { GeneralInfoListRequest, GeneralInfoList } = GeneralInfoStore();
@@ -157,7 +160,6 @@ function App() {
 
   setFaviconFromApi(GeneralInfoList?.Favicon); // Favicon
 
-
   return (
     <Router>
       <MetaProvider />
@@ -181,6 +183,12 @@ function App() {
         <Route path="/shippinpolicy" element={<ShippingPolicyPage />} />
         <Route path="/faqs" element={<FAQPage />} />
         <Route path="/track-order" element={<TrackOrderPage />} />
+        <Route path="/blog" element={<BlogsPage />} />
+        <Route path="/blogs/:slug" element={<BlogDetailsPage />} />
+        <Route path="/forgot-password" element={<ForgetPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+
+
 
         {/*Admin Login Page*/}
         <Route path="/admin/login" element={<AdminLogin />} />
@@ -342,15 +350,11 @@ function App() {
             path="/admin/incomplete-order"
             element={<AbandonedCartPage />}
           />
-          <Route
-            path="/admin/create-blog"
-            element={<CreateBlogPage />}
-          />
+          <Route path="/admin/create-blog" element={<CreateBlogPage />} />
 
-          <Route
-            path="/admin/blogs"
-            element={<BlogsListPage />}
-          />
+          <Route path="/admin/blogs" element={<BlogsListPage />} />
+
+          <Route path="/admin/blogs/:id" element={<EditBlogPage />} />
         </Route>
 
         {/* Not Found */}

@@ -32,6 +32,7 @@ const GoogleTagManagerController = require("../controllers/GoogleTagManagerContr
 const bkashConfigController = require("../controllers/bkashConfigController");
 const SteadfastConfigController = require("../controllers/SteadfastConfigController");
 const blogController = require("../controllers/BlogController");
+const PassWordResetController = require("../controllers/PassWordResetController");
 
 
 const { handleCourierCheck } = require("../controllers/courierController");
@@ -94,6 +95,7 @@ const upload = multer({ storage }).fields([
   },
   {
     name: "images",
+    maxCount: 10,
   },
   {
     name: "userImage",
@@ -247,7 +249,8 @@ router.get(
 );
 router.get(
   "/admin/:id",
-  adminProtect,checkPermission("admin-users"),
+  adminProtect,
+  checkPermission("admin-users"),
   AdminController.getAdminById,
 );
 router.put(
@@ -423,6 +426,7 @@ router.post(
   upload,
   productController.createProduct,
 );
+
 router.put(
   "/products/:id",
   adminProtect,
@@ -688,15 +692,37 @@ router.patch(
   SteadfastConfigController.updateConfig,
 );
 
-
 // Routes for Blogs
-router.post("/blog", upload, adminProtect, blogController.createBlog);
+router.post(
+  "/blog",
+  upload,
+  adminProtect,
+  checkPermission("blogs"),
+  blogController.createBlog,
+);
+router.patch(
+  "/blog/:id",
+  upload,
+  adminProtect,
+  checkPermission("blogs"),
+  blogController.updateBlog,
+);
+router.delete(
+  "/blog/:id",
+  adminProtect,
+  checkPermission("blogs"),
+  blogController.deleteBlog,
+);
 router.get("/blog", blogController.getAllBlogs);
 router.get("/activeblog", blogController.getActiveBlogs);
 router.get("/blog/slug/:slug", blogController.getBlogBySlug);
 router.get("/blog/:id", blogController.getBlogById);
-router.patch("/blog/:id", upload, adminProtect, blogController.updateBlog);
-router.delete("/blog/:id", adminProtect, blogController.deleteBlog);
+
+
+
+// Password Reset Routes
+router.post("/request-reset", PassWordResetController.requestPasswordReset);
+router.post("/reset-password", PassWordResetController.resetPasswordWithOTP);
 
 
 
