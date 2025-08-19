@@ -94,6 +94,7 @@ import BlogsPage from "./pagesUser/BlogsPage.jsx";
 import BlogDetailsPage from "./pagesUser/BlogDetailsPage.jsx";
 import ForgetPasswordPage from "./pagesUser/ForgetPasswordPage.jsx";
 import ResetPasswordPage from "./pagesUser/ResetPasswordPage.jsx";
+import PageViewTracker from "./component/componentGeneral/PageViewTracker.jsx";
 
 function App() {
   const { GeneralInfoListRequest, GeneralInfoList } = GeneralInfoStore();
@@ -163,6 +164,7 @@ function App() {
   return (
     <Router>
       <MetaProvider />
+      <PageViewTracker />
       <ScrollToTop />
       <ScrollToTopButton />
       <Routes>
