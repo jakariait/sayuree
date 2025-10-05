@@ -51,7 +51,6 @@ const createOrder = async (req, res) => {
   }
 };
 
-
 const getAllOrders = async (req, res) => {
   try {
     const { orderStatus, page, limit, search } = req.query;
