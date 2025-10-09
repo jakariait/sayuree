@@ -49,10 +49,15 @@ const Checkout = () => {
   // Shipping Details Handler
   const [addressData, setAddressData] = useState({});
   const [orderPlaced, setOrderPlaced] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [isAddressValid, setIsAddressValid] = useState(false); // 1. Added state
 
   // Handle data received from AddressForm
+  // 2. Updated handler
   const handleAddressChange = (data) => {
-    setAddressData(data);
+    const { isValid, ...formData } = data;
+    setAddressData(formData);
+    setIsAddressValid(isValid);
   };
 
   const handleRewardPointsChange = (value) => {
@@ -155,8 +160,16 @@ const Checkout = () => {
   // --- Grand Total ---
   const grandTotal = amountAfterDiscounts + vatAmount + actualShippingCost;
 
+  // 3. Updated handleOrderSubmit
   const handleOrderSubmit = async (e) => {
     e.preventDefault();
+
+    if (!isAddressValid) {
+      showSnackbar("Please fill in all required address fields correctly.", "error");
+      return;
+    }
+
+    setIsProcessing(true);
 
     const orderPayload = {
       shippingInfo: {
@@ -202,10 +215,12 @@ const Checkout = () => {
           return;
         } else {
           showSnackbar("Failed to initiate bKash payment", "error");
+          setIsProcessing(false);
         }
       } catch (err) {
         console.error(err);
         showSnackbar("bKash payment initialization failed", "error");
+        setIsProcessing(false);
       }
       return;
     }
@@ -226,9 +241,11 @@ const Checkout = () => {
         }, 300); // delay by 300ms
       } else {
         showSnackbar(res.data.message || "Failed to place order.", "error");
+        setIsProcessing(false);
       }
     } catch {
       showSnackbar("Something went wrong. Please try again later.", "error");
+      setIsProcessing(false);
     }
   };
 
@@ -295,12 +312,18 @@ const Checkout = () => {
               vatAmount={vatAmount}
               vatPercentage={vatPercentage}
             />
+            {/* 4. Updated button */}
             <button
-              className={
-                "primaryBgColor accentTextColor px-4 py-2 w-full rounded-lg cursor-pointer"
-              }
+              className={`primaryBgColor accentTextColor px-4 py-2 w-full rounded-lg ${
+                isProcessing || !isAddressValid
+                  ? "cursor-not-allowed opacity-50"
+                  : "cursor-pointer"
+              }`}
+              disabled={isProcessing || !isAddressValid}
             >
-              {paymentMethod === "cash_on_delivery"
+              {isProcessing
+                ? "Processing..."
+                : paymentMethod === "cash_on_delivery"
                 ? "Place Order (Cash on Delivery)"
                 : "Process to Payment (bKash)"}
             </button>

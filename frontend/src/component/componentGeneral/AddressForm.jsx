@@ -7,6 +7,7 @@ const AddressForm = ({ user, onAddressChange }) => {
     address: "",
     email: "",
   });
+  const [phoneError, setPhoneError] = useState("");
 
   useEffect(() => {
     if (user) {
@@ -19,9 +20,22 @@ const AddressForm = ({ user, onAddressChange }) => {
     }
   }, [user]);
 
-  // Send initial data on load (after the initial render and potential user prop update)
+  // Validate phone and pass data up
   useEffect(() => {
-    onAddressChange(formData);
+    const isPhoneValid = formData.phone.length === 11;
+    if (formData.phone.length > 0 && !isPhoneValid) {
+      setPhoneError("Mobile number must be 11 digits");
+    } else {
+      setPhoneError("");
+    }
+
+    const isFormValid = !!(
+      formData.fullName &&
+      formData.address &&
+      isPhoneValid
+    );
+
+    onAddressChange({ ...formData, isValid: isFormValid });
   }, [formData, onAddressChange]);
 
   const handleChange = (e) => {
@@ -34,10 +48,7 @@ const AddressForm = ({ user, onAddressChange }) => {
       newValue = value.replace(/\D/g, ""); // Remove all non-digit characters
     }
 
-    setFormData((prev) => {
-      const newData = { ...prev, [name]: newValue };
-      return newData;
-    });
+    setFormData((prev) => ({ ...prev, [name]: newValue }));
   };
 
   return (
@@ -77,6 +88,9 @@ const AddressForm = ({ user, onAddressChange }) => {
           value={formData.phone}
           onChange={handleChange}
         />
+        {phoneError && (
+          <p className="text-red-500 text-sm mt-1">{phoneError}</p>
+        )}
       </div>
 
       {/* Address */}

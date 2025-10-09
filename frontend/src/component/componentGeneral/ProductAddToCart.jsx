@@ -193,10 +193,13 @@ const ProductAddToCart = ({ product }) => {
             {/*Cart Quantity Button*/}
             <div className={"rounded flex items-center justify-between"}>
               <button
-                className={
-                  "primaryBgColor accentTextColor px-2 py-2 md:py-3 rounded-l cursor-pointer"
-                }
+                className={`primaryBgColor accentTextColor px-2 py-2 md:py-3 rounded-l ${
+                  selectedVariant?.stock === 0 || product.finalStock === 0
+                    ? "opacity-50 cursor-not-allowed"
+                    : "cursor-pointer"
+                }`}
                 onClick={() => handleQuantityChange("decrease")}
+                disabled={selectedVariant?.stock === 0 || product.finalStock === 0}
               >
                 <FiMinus />
               </button>
@@ -204,11 +207,17 @@ const ProductAddToCart = ({ product }) => {
                 {quantity}
               </span>
               <button
-                className={
-                  "primaryBgColor accentTextColor px-2 py-2 md:py-3 rounded-r cursor-pointer"
-                }
+                className={`primaryBgColor accentTextColor px-2 py-2 md:py-3 rounded-r ${
+                  quantity >= MAX_QUANTITY || selectedVariant?.stock === 0 || product.finalStock === 0
+                    ? "opacity-50 cursor-not-allowed"
+                    : "cursor-pointer"
+                }`}
                 onClick={() => handleQuantityChange("increase")}
-                disabled={quantity >= MAX_QUANTITY} // Disable when limit is reached
+                disabled={
+                  quantity >= MAX_QUANTITY ||
+                  selectedVariant?.stock === 0 ||
+                  product.finalStock === 0
+                }
               >
                 <FaPlus />
               </button>
@@ -234,21 +243,30 @@ const ProductAddToCart = ({ product }) => {
             )}
           </div>
           {/*Cash On Delivery Order Button*/}
-          <motion.button
-            className="primaryBgColor accentTextColor px-2 py-1 md:py-2 rounded cursor-pointer"
-            animate={{ scale: [1, 1.05, 1] }} // Scale animation
-            transition={{
-              duration: 2.5,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-            onClick={() => {
-              addToCart(product, quantity, selectedVariant);
-              navigate("/checkout");
-            }}
-          >
-            Order with Cash on Delivery
-          </motion.button>
+          {selectedVariant?.stock === 0 || product.finalStock === 0 ? (
+            <button
+              className="primaryBgColor accentTextColor px-2 py-1 md:py-2 rounded opacity-50 cursor-not-allowed"
+              disabled
+            >
+              Order with Cash on Delivery
+            </button>
+          ) : (
+            <motion.button
+              className="primaryBgColor accentTextColor px-2 py-1 md:py-2 rounded cursor-pointer"
+              animate={{ scale: [1, 1.05, 1] }} // Scale animation
+              transition={{
+                duration: 2.5,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+              onClick={() => {
+                addToCart(product, quantity, selectedVariant);
+                navigate("/checkout");
+              }}
+            >
+              Order with Cash on Delivery
+            </motion.button>
+          )}
         </div>
       </div>
     </div>
