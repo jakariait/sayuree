@@ -36,7 +36,7 @@ const AddressForm = ({ user, onAddressChange }) => {
     );
 
     onAddressChange({ ...formData, isValid: isFormValid });
-  }, [formData, onAddressChange]);
+  }, [formData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

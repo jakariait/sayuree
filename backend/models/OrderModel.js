@@ -63,12 +63,15 @@ const orderSchema = new mongoose.Schema(
       email: { type: String },
       address: { type: String, required: true },
     },
-    paymentId:{
+    paymentId: {
       type: String,
     },
     items: [
       {
-        productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
+        productId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Product",
+        },
         variantId: { type: mongoose.Schema.Types.ObjectId },
         quantity: {
           type: Number,
@@ -154,8 +157,7 @@ const orderSchema = new mongoose.Schema(
     sentToCourier: {
       type: Boolean,
       default: false,
-    }
-
+    },
   },
   { timestamps: true, versionKey: false },
 );
@@ -178,24 +180,40 @@ orderSchema.pre("save", function (next) {
   next();
 });
 
-orderSchema.pre('findOneAndUpdate', async function (next) {
+orderSchema.pre("findOneAndUpdate", async function (next) {
   try {
     const update = this.getUpdate();
     if (!update) return next();
 
     const order = await this.model.findOne(this.getQuery());
     if (!order) {
-      return next(new Error('Order not found'));
+      return next(new Error("Order not found"));
     }
 
-    const subtotalAmount = update.subtotalAmount !== undefined ? update.subtotalAmount : order.subtotalAmount;
-    const promoDiscount = update.promoDiscount !== undefined ? update.promoDiscount : order.promoDiscount;
-    const specialDiscount = update.specialDiscount !== undefined ? update.specialDiscount : order.specialDiscount;
-    const deliveryCharge = update.deliveryCharge !== undefined ? update.deliveryCharge : order.deliveryCharge;
+    const subtotalAmount =
+      update.subtotalAmount !== undefined
+        ? update.subtotalAmount
+        : order.subtotalAmount;
+    const promoDiscount =
+      update.promoDiscount !== undefined
+        ? update.promoDiscount
+        : order.promoDiscount;
+    const specialDiscount =
+      update.specialDiscount !== undefined
+        ? update.specialDiscount
+        : order.specialDiscount;
+    const deliveryCharge =
+      update.deliveryCharge !== undefined
+        ? update.deliveryCharge
+        : order.deliveryCharge;
     const vat = update.vat !== undefined ? update.vat : order.vat;
-    const advanceAmount = update.advanceAmount !== undefined ? update.advanceAmount : order.advanceAmount || 0;
+    const advanceAmount =
+      update.advanceAmount !== undefined
+        ? update.advanceAmount
+        : order.advanceAmount || 0;
 
-    const totalAmount = (subtotalAmount - promoDiscount - specialDiscount) + deliveryCharge + vat;
+    const totalAmount =
+      subtotalAmount - promoDiscount - specialDiscount + deliveryCharge + vat;
     const dueAmount = totalAmount - advanceAmount;
 
     update.totalAmount = totalAmount;
@@ -208,7 +226,5 @@ orderSchema.pre('findOneAndUpdate', async function (next) {
     next(err);
   }
 });
-
-
 
 module.exports = mongoose.model("Order", orderSchema);

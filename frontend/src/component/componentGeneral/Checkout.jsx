@@ -27,6 +27,7 @@ const Checkout = () => {
   const { cart, removeFromCart, updateQuantity, clearCart } = useCartStore();
   const { user } = useAuthUserStore();
 
+
   // Coupon & Reward
   const [rewardPointsUsed, setRewardPointsUsed] = useState(0);
   const [appliedCoupon, setAppliedCoupon] = useState(null);
@@ -315,11 +316,11 @@ const Checkout = () => {
             {/* 4. Updated button */}
             <button
               className={`primaryBgColor accentTextColor px-4 py-2 w-full rounded-lg ${
-                isProcessing || !isAddressValid
+                isProcessing || !isAddressValid || cart.length === 0
                   ? "cursor-not-allowed opacity-50"
                   : "cursor-pointer"
               }`}
-              disabled={isProcessing || !isAddressValid}
+              disabled={isProcessing || !isAddressValid || cart.length === 0}
             >
               {isProcessing
                 ? "Processing..."
