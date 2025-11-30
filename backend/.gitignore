@@ -137,3 +137,5 @@ dist
 
 # Ignore uploaded files
 uploads/
+
+duplicateDB.js
