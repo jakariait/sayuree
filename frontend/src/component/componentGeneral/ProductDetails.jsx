@@ -119,8 +119,7 @@ const ProductDetails = () => {
 
 
 
-
-  // If product is loading, show a loading screen
+  // // If product is loading, show a loading screen
   if (loading || product?.slug !== slug) {
     return (
       <div className="xl:container xl:mx-auto p-3">
