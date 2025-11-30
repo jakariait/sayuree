@@ -32,16 +32,21 @@ import Typography from "@mui/material/Typography";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import useProductStore from "../../store/useProductStore.js";
 import useOrderStore from "../../store/useOrderStore.js";
-import React from "react";
+import React, { useEffect } from "react";
 import RequirePermission from "./RequirePermission.jsx";
 
 import { CircularProgress } from "@mui/material";
 
 export default function SidebarMenu() {
-  const { totalProductsAdmin } = useProductStore();
+  const { totalProductsAdmin, fetchProductsAdmin } = useProductStore();
   const { logout } = useAuthAdminStore();
-  const { totalByStatus } = useOrderStore();
+  const { totalByStatus, fetchTotalOrdersByStatus } = useOrderStore();
   const { loading } = useAuthAdminStore();
+
+  useEffect(() => {
+    fetchTotalOrdersByStatus();
+    fetchProductsAdmin();
+  }, [fetchTotalOrdersByStatus, fetchProductsAdmin]);
   // To access delivered count
   const pendingCount = totalByStatus.pending;
   const approvedCount = totalByStatus.approved;

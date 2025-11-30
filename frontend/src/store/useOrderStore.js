@@ -204,9 +204,43 @@ const useOrderStore = create((set, get) => ({
   },
 
   // Helper function to refresh current view
-  refreshOrders: () => {
-    const { currentStatus, currentPage, itemsPerPage } = get();
-    get().fetchAllOrders(currentStatus, currentPage, itemsPerPage);
+  fetchTotalOrdersByStatus: async () => {
+    const token = useAuthAdminStore.getState().token;
+    set({ orderListLoading: true, orderListError: null });
+
+    const statuses = [
+      "pending",
+      "approved",
+      "intransit",
+      "delivered",
+      "returned",
+      "cancelled",
+    ];
+    let newTotalByStatus = { ...get().totalByStatus };
+
+    try {
+      for (const status of statuses) {
+        const res = await axios.get(`${apiUrl}/orders`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          params: { orderStatus: status, limit: 1 }, // Fetching only 1 item to get total count efficiently
+        });
+
+        if (res.data.success) {
+          newTotalByStatus[status] = res.data.totalOrders || 0;
+        } else {
+          console.error(`Failed to fetch ${status} orders:`, res.data.message);
+        }
+      }
+      set({ totalByStatus: newTotalByStatus, orderListLoading: false });
+    } catch (error) {
+      set({
+        orderListError:
+          error.response?.data?.message || "Failed to fetch order totals",
+        orderListLoading: false,
+      });
+    }
   },
 }));
 
