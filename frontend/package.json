@@ -26,7 +26,7 @@
     "lightgallery": "^2.8.3",
     "lucide-react": "^0.477.0",
     "primereact": "^10.9.4",
-    "quill": "^2.0.3",
+    "quill": "^2.0.2",
     "react": "^19.1.0",
     "react-csv": "^2.2.2",
     "react-data-table-component": "^7.7.0",
