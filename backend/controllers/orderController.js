@@ -53,7 +53,7 @@ const createOrder = async (req, res) => {
 
 const getAllOrders = async (req, res) => {
   try {
-    const { orderStatus, page, limit, search } = req.query;
+    const { orderStatus, page, limit, search, startDate, endDate } = req.query;
 
     const filter = {};
     if (orderStatus) {
@@ -65,7 +65,14 @@ const getAllOrders = async (req, res) => {
     const limitNum = usePagination ? parseInt(limit) : null;
 
     const { totalOrders, orders, totalPages, currentPage } =
-      await orderService.getAllOrders(filter, pageNum, limitNum, search);
+      await orderService.getAllOrders(
+        filter,
+        pageNum,
+        limitNum,
+        search,
+        startDate,
+        endDate,
+      );
 
     res.status(200).json({
       success: true,

@@ -153,19 +153,44 @@ const createOrder = async (orderData, userId) => {
   }
 };
 
-const getAllOrders = async (filter = {}, page, limit, search = '') => {
+const getAllOrders = async (
+  filter = {},
+  page,
+  limit,
+  search = "",
+  startDate,
+  endDate,
+) => {
   try {
     let queryFilter = { ...filter };
 
     if (search && search.trim()) {
-      const searchRegex = new RegExp(search.trim(), 'i');
+      const searchRegex = new RegExp(search.trim(), "i");
       queryFilter.$or = [
         { orderNo: searchRegex },
-        { 'shippingInfo.fullName': searchRegex },
-        { 'shippingInfo.mobileNo': searchRegex },
-        { 'shippingInfo.email': searchRegex },
-        { 'shippingInfo.address': searchRegex },
+        { "shippingInfo.fullName": searchRegex },
+        { "shippingInfo.mobileNo": searchRegex },
+        { "shippingInfo.email": searchRegex },
+        { "shippingInfo.address": searchRegex },
       ];
+    }
+
+    // Add date range filter
+    if (startDate || endDate) {
+      queryFilter.createdAt = {};
+      if (startDate) {
+        const d = new Date(startDate);
+        if (!isNaN(d.getTime())) {
+          queryFilter.createdAt.$gte = d;
+        }
+      }
+      if (endDate) {
+        const d = new Date(endDate);
+        if (!isNaN(d.getTime())) {
+          d.setHours(23, 59, 59, 999);
+          queryFilter.createdAt.$lte = d;
+        }
+      }
     }
 
     let query = Order.find(queryFilter)

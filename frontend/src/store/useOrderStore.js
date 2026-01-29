@@ -34,6 +34,10 @@ const useOrderStore = create((set, get) => ({
   // Search functionality
   searchQuery: "",
 
+  // Date range filtering
+  startDate: null,
+  endDate: null,
+
   // Common loading/error state
   orderListLoading: false,
   orderListError: null,
@@ -50,13 +54,17 @@ const useOrderStore = create((set, get) => ({
     set({ searchQuery: query, currentPage: 1 });
   },
 
+  setDateRange: (startDate, endDate) => {
+    set({ startDate, endDate, currentPage: 1 });
+  },
+
   clearSearch: () => {
     set({ searchQuery: "", currentPage: 1 });
   },
 
   fetchAllOrders: async (status = "", page = 1, limit = 10) => {
     const token = useAuthAdminStore.getState().token;
-    const { searchQuery } = get(); // Get the current search query
+    const { searchQuery, startDate, endDate } = get(); // Get the current search query
 
     set({
       orderListLoading: true,
@@ -78,6 +86,14 @@ const useOrderStore = create((set, get) => ({
       // Add search query if provided
       if (searchQuery && searchQuery.trim()) {
         params.search = searchQuery.trim();
+      }
+
+      // Add date filters if they exist
+      if (startDate) {
+        params.startDate = startDate;
+      }
+      if (endDate) {
+        params.endDate = endDate;
       }
 
       const res = await axios.get(`${apiUrl}/orders`, {
@@ -133,6 +149,12 @@ const useOrderStore = create((set, get) => ({
 
   fetchAllOrdersWithoutPagination: async (status = "", page, limit) => {
     const token = useAuthAdminStore.getState().token;
+    const {
+      itemsPerPage: defaultLimit,
+      currentPage: defaultPage,
+      startDate,
+      endDate,
+    } = get();
 
     set({
       orderListLoading: true,
@@ -141,16 +163,25 @@ const useOrderStore = create((set, get) => ({
     });
 
     try {
-      const params = {};
+      const params = {
+        page: page || defaultPage,
+        limit: limit || defaultLimit,
+      };
 
-      // Add status filter if provided
+      if (!params.limit) {
+        params.limit = 10; // Final fallback
+      }
+
       if (status) {
         params.orderStatus = status;
       }
 
-      // Add pagination if provided
-      if (page) params.page = page;
-      if (limit) params.limit = limit;
+      if (startDate) {
+        params.startDate = startDate;
+      }
+      if (endDate) {
+        params.endDate = endDate;
+      }
 
       const res = await axios.get(`${apiUrl}/orders`, {
         headers: {
@@ -161,6 +192,8 @@ const useOrderStore = create((set, get) => ({
 
       if (res.data.success) {
         const { orders, totalOrders, totalPages, currentPage } = res.data;
+
+        const usedLimit = params.limit;
 
         if (status) {
           set((state) => ({
@@ -175,7 +208,7 @@ const useOrderStore = create((set, get) => ({
             totalOrders: totalOrders || 0,
             totalPages: totalPages || 1,
             currentPage: currentPage || 1,
-            itemsPerPage: limit || 10,
+            itemsPerPage: usedLimit,
             orderListLoading: false,
           }));
         } else {
@@ -184,7 +217,7 @@ const useOrderStore = create((set, get) => ({
             totalOrders: totalOrders || 0,
             totalPages: totalPages || 1,
             currentPage: currentPage || 1,
-            itemsPerPage: limit || 10,
+            itemsPerPage: usedLimit,
             orderListLoading: false,
           });
         }
@@ -206,6 +239,7 @@ const useOrderStore = create((set, get) => ({
   // Helper function to refresh current view
   fetchTotalOrdersByStatus: async () => {
     const token = useAuthAdminStore.getState().token;
+    const { startDate, endDate } = get();
     set({ orderListLoading: true, orderListError: null });
 
     const statuses = [
@@ -220,11 +254,20 @@ const useOrderStore = create((set, get) => ({
 
     try {
       for (const status of statuses) {
+        const params = { orderStatus: status, limit: 1 };
+
+        if (startDate) {
+          params.startDate = startDate;
+        }
+        if (endDate) {
+          params.endDate = endDate;
+        }
+
         const res = await axios.get(`${apiUrl}/orders`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-          params: { orderStatus: status, limit: 1 }, // Fetching only 1 item to get total count efficiently
+          params, // Fetching only 1 item to get total count efficiently
         });
 
         if (res.data.success) {

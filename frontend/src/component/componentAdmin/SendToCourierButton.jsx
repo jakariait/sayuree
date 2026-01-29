@@ -151,7 +151,7 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
     <>
       {/* ✅ Disable if already sent */}
       <button
-        className={`primaryBgColor accentTextColor cursor-pointer px-4 py-2 w-34 rounded text-sm ${
+        className={`primaryBgColor accentTextColor cursor-pointer px-4 py-2 w-full rounded text-sm ${
           sent ? "opacity-50 cursor-not-allowed" : ""
         }`}
         onClick={() => setOpen(true)}
