@@ -238,7 +238,14 @@ const AllOrders = ({ title, status = "" }) => {
 
   const handleView = useCallback(
     (orderId) => {
-      navigate(`/admin/orders/${orderId}`);
+      if (orderId) {
+        navigate(`/admin/orders/${orderId}`);
+      } else {
+        console.error("Attempted to view order with undefined ID.");
+        setSnackbarMessage("Error: Order ID is missing.");
+        setSnackbarSeverity("error");
+        setOpenSnackbar(true);
+      }
     },
     [navigate],
   );
@@ -562,8 +569,8 @@ const AllOrders = ({ title, status = "" }) => {
                     <TableCell>
                       {new Date(order.createdAt).toLocaleString()}
                     </TableCell>
-                    <TableCell>{order.shippingInfo.fullName}</TableCell>
-                    <TableCell>{order.shippingInfo.mobileNo}</TableCell>
+                    <TableCell>{order.shippingInfo?.fullName}</TableCell>
+                    <TableCell>{order.shippingInfo?.mobileNo}</TableCell>
                     <TableCell>
                       <SendToCourierButton
                         orderData={{

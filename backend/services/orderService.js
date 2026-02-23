@@ -260,11 +260,12 @@ const getOrderById = async (orderId) => {
     // Collect all unique size IDs for the selected variants
     const sizeIds = new Set();
     order.items.forEach((item) => {
-      if (item.productId && item.productId.variants.length > 0) {
+      // Ensure productId and variantId exist before proceeding
+      if (item.productId && item.productId.variants && item.variantId) {
         const matchedVariant = item.productId.variants.find(
-          (variant) => variant._id.toString() === item.variantId.toString(),
+          (variant) => variant._id?.toString() === item.variantId?.toString(), // Added optional chaining
         );
-        if (matchedVariant && matchedVariant.size) {
+        if (matchedVariant?.size) { // Added optional chaining
           sizeIds.add(matchedVariant.size); // Add the size ID of the matched variant
         }
       }
@@ -277,22 +278,23 @@ const getOrderById = async (orderId) => {
       .select("name")
       .lean();
     const sizeMap = new Map(
-      sizes.map((size) => [size._id.toString(), size.name]),
+      sizes.map((size) => [size._id?.toString(), size.name]), // Added optional chaining
     );
 
     // Iterate through items and remove non-matched variants, set size name for the matched variant only
     order.items = order.items.map((item) => {
-      if (item.productId && item.productId.variants) {
+      if (item.productId && item.productId.variants && item.variantId) { // Ensure item.variantId exists here too
         // Filter variants to keep only the matched variant
         item.productId.variants = item.productId.variants.filter(
-          (variant) => variant._id.toString() === item.variantId.toString(),
+          (variant) => variant._id?.toString() === item.variantId?.toString(), // Added optional chaining
         );
 
         // If a matched variant is found, set its size name
         if (item.productId.variants.length > 0) {
           const variant = item.productId.variants[0]; // The matched variant
           const sizeId = variant.size;
-          variant.sizeName = sizeMap.get(sizeId.toString()) || "N/A"; // Set size name for the matched variant
+          // Ensure sizeId exists before calling toString()
+          variant.sizeName = (sizeId ? sizeMap.get(sizeId.toString()) : null) || "N/A"; // Added check
         }
       }
       return item;
@@ -300,6 +302,8 @@ const getOrderById = async (orderId) => {
 
     return order;
   } catch (error) {
+    // Log the actual error for debugging
+    console.error("Error in getOrderById service:", error);
     throw new Error("Error fetching order by ID: " + error.message);
   }
 };

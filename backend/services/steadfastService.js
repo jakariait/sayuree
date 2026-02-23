@@ -61,19 +61,34 @@ const createSteadfastOrderService = async (orderData) => {
 };
 
 const getSteadfastOrderStatusByInvoiceService = async (invoiceId) => {
-  const config = await getSteadfastConfig();
+  const config = await getSteadfastConfig(); // This throws if no active config
 
-  const response = await axios.get(
-    `${config.baseUrl}/status_by_invoice/${invoiceId}`,
-    {
-      headers: {
-        "Api-Key": config.apiKey,
-        "Secret-Key": config.secretKey,
-      },
-    }
-  );
+  if (!config.baseUrl) {
+    throw new Error("Steadfast API Base URL is not configured.");
+  }
+  if (!config.apiKey) {
+    throw new Error("Steadfast API Key is not configured.");
+  }
+  if (!config.secretKey) {
+    throw new Error("Steadfast API Secret Key is not configured.");
+  }
 
-  return response.data;
+  try {
+    const response = await axios.get(
+      `${config.baseUrl}/status_by_invoice/${invoiceId}`,
+      {
+        headers: {
+          "Api-Key": config.apiKey,
+          "Secret-Key": config.secretKey,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    // Log the actual error response from the external API
+    console.error("Error fetching Steadfast order status from external API:", error.response?.data || error.message);
+    throw new Error(`Failed to fetch order status from Steadfast: ${error.response?.data?.message || error.message}`);
+  }
 };
 
 module.exports = {

@@ -168,6 +168,12 @@ const ViewOrder = () => {
 
   const fetchOrder = async () => {
     try {
+      if (!orderId) {
+        setError("Order ID is missing from the URL. Please navigate from a valid order link.");
+        setLoading(false);
+        return;
+      }
+
       const token = localStorage.getItem("token");
       if (!token) {
         setError("You are not authenticated.");
@@ -184,7 +190,7 @@ const ViewOrder = () => {
       setOrder(res.data.order);
       setLoading(false);
     } catch (err) {
-      setError("Failed to fetch order details.");
+      setError(err.response?.data?.message || "Failed to fetch order details.");
       setLoading(false);
     }
   };
